@@ -19,13 +19,13 @@ const CategorySchema = new mongoose.Schema({
         required: true,
 
     },
-    badges: {
+    // badges: {
 
-        type: [{ type: Schema.Types.ObjectId, ref: 'Badge' }],
-        default: [],
-        required: true
+    //     type: [{ type: Schema.Types.ObjectId, ref: 'Badge' }],
+    //     default: [],
+    //     required: true
 
-    },
+    // },
   
    
   

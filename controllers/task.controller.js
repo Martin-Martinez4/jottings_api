@@ -58,14 +58,36 @@ async function createTask(req, res, next){
 
 async function deleteTask(req, res, next){
 
+    const session = await conn.startSession();
+    session.startTransaction();
+
     try{
+
+        const opts = { session, new: true };
+
 
         const project_id = req.body.project_id;
         const category_id = req.body.category_id;
         const task_id = req.body.task_id;
 
+        const badge_relations = req.body.badge_relations;
+
         const project = await Project.findById(project_id);
         const tasks = await project.category.id(category_id).tasks.pull({ _id: task_id });
+
+        
+        const taskBadges = project.taskBadgesRelation.filter(realtion => {
+
+            if( badge_relations.includes(realtion._id.toString()) ){
+
+                // return realtion 
+
+                project.taskBadgesRelation.pull(realtion)
+            }
+            
+        });
+
+        // console.log(taskBadges);
 
         project.save();
 
@@ -81,6 +103,39 @@ async function deleteTask(req, res, next){
         
     }
 
+
+}
+
+
+async function updateTask(req, res, next){
+
+    try{
+
+        const project_id = req.body.project_id;
+        const category_id = req.body.category_id;
+        const task_id = req.body.task_id;
+
+        const content = req.body.content;
+
+        const project = await Project.findById(project_id);
+
+        let tasks = await project.category.id(category_id).tasks.id(task_id);
+
+        tasks.content = content;
+
+        await project.save();
+
+        res.status(201).json({ message: 'task updated!'});
+    }
+    catch(err){
+
+        err.statusCode = err.statusCode | 500;
+
+        err.message =  err.message | "Error updating Task";
+
+        next(err);
+        
+    }
 
 }
 
@@ -135,7 +190,8 @@ async function deleteTask(req, res, next){
 export default {
 
     createTask,
-    deleteTask
+    deleteTask,
+    updateTask
 
 }
 

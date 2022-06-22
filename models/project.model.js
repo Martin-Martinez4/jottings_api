@@ -19,10 +19,17 @@ const ProjectSchema = new mongoose.Schema({
         required: true
 
     },
+    taskBadgesRelation: {
+
+        type: [{Task: {type: Schema.Types.ObjectId, ref: 'Project.category.tasks'}, Badges: {type: Schema.Types.ObjectId, ref: 'Project.badges'}}],
+        default: [],
+        required: false
+
+    },
     category: {
         type:  [CategorySchema],
         default: [],
-        required: false
+        required: true
     },
     users: {
         type:[{type: Schema.Types.ObjectId, ref: 'User'}],
@@ -30,6 +37,7 @@ const ProjectSchema = new mongoose.Schema({
     }
   
 })
+
 
 export default mongoose.model('Project', ProjectSchema);
 

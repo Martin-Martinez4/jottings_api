@@ -16,15 +16,11 @@ const BadgeSchema = new mongoose.Schema({
         required: false
 
     },
-    project: {
-
-        type: Schema.Types.ObjectId, 
-        ref: 'Project',
-        required: true
-    }
+   
     
   
 })
+
 
 export default mongoose.model('Badge', BadgeSchema);
 export {

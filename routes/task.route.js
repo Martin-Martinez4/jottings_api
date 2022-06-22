@@ -13,7 +13,12 @@ router.put(`/`, (req, res, next) => {
 router.delete('/', (req, res, next) => {
 
     taskController.deleteTask(req, res, next);
-})
+});
+
+router.put('/update', (req, res, next) => {
+
+    taskController.updateTask(req, res, next);
+});
 
 export default router;
 

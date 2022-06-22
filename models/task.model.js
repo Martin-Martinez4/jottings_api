@@ -14,11 +14,11 @@ const TaskSchema = new mongoose.Schema({
         required: true
     },
   
-    badges:{
-        type: [{type: Schema.Types.ObjectId, ref: 'Badge'}],
-        default: [],
-        required: true
-    },
+    // badges:{
+    //     type: [{type: Schema.Types.ObjectId, ref: 'Badge'}],
+    //     default: [],
+    //     required: true
+    // },
   
   
 }, { timestamps: true })
