@@ -1,6 +1,7 @@
 
 import Category from "../models/category.model.js";
 import Project from "../models/project.model.js";
+import Task from "../models/task.model.js";
 
 import {conn} from "../server.js";
 
@@ -102,6 +103,55 @@ async function deleteCategory(req, res, next){
 
 }
 
+async function pushTaskInto(req, res, next){
+
+    const project_id = req.body.project_id;
+    const category_id = req.body.category_id;
+    const task_id = req.body.task_id;
+    const target_category_id = req.body.target_category_id;
+
+    try{
+
+        const project = await Project.findById(project_id);
+
+        const oldCategory = await project.category.id(category_id);
+
+        let task = await oldCategory.tasks.id(task_id);
+
+        // console.log(task)
+
+        const taskToInsert = new Task({
+
+            title: task.title,
+            content: task.content,
+        })
+
+        const targetCategory = await project.category.id(target_category_id);
+
+        // console.log(task);
+        // console.log(targetCategory.tasks)
+        // console.log(oldCategory.tasks)
+
+        targetCategory.tasks.push(taskToInsert);
+        oldCategory.tasks.pull(task_id)
+
+        project.save();
+        
+
+        res.status(201).json({ message: 'Category created!'});
+    }
+    catch(err){
+
+        err.statusCode = err.statusCode | 500;
+
+        err.message =  err.message | "Error Creating Category";
+
+        next(err);
+        
+    }
+
+}
+
 async function editCategory(req, res, next){
 
     try{
@@ -136,7 +186,9 @@ catch(err){
 export default {
 
     createCategory,
-    deleteCategory
+    deleteCategory,
+    editCategory,
+    pushTaskInto,
 
 }
 

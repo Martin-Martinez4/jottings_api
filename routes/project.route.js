@@ -5,7 +5,7 @@ import projectController from "../controllers/project.controller.js";
 
 const router = express.Router();
 
-router.get('/', (req, res, next) => {
+router.get('/:id', (req, res, next) => {
 
     projectController.getProject(req, res, next)
 })

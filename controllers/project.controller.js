@@ -5,29 +5,70 @@ async function getProject(req, res, next){
 
     try{
 
-        const project_id = req.body.project_id;
+        const project_id = req.params.id;
 
         const project = await Project.findById(project_id);
 
+        let projectToSend = {project_id: project._id, title: project.title}
+
         let taskBadgeObj = {};
 
-        project.taskBadgesRelation.forEach(object => {
+        let categories = {};
 
-            const key = object.Task
-
-            if(taskBadgeObj[key] === undefined){
-
-                taskBadgeObj[key] = [object.Badges.toString()]
-            }else{
-
-                taskBadgeObj[key].push(object.Badges.toString())
-            }
-
-            
-        });
+        let tasksToSend = {};
 
 
-        res.status(201).json({ project: project, taskBadgeObj: taskBadgeObj, message: 'Project gotten!'});
+        if(project?.taskBadgesRelation?.length <= 0){
+
+            project.taskBadgesRelation.forEach(object => {
+    
+                const key = object.Task
+    
+                if(taskBadgeObj[key] === undefined){
+    
+                    taskBadgeObj[key] = [object.Badges.toString()]
+                }else{
+    
+                    taskBadgeObj[key].push(object.Badges.toString())
+                }
+    
+                
+            });
+        }
+
+        project?.category.forEach( object => {
+
+            const cat_id = object._id.toString();
+
+            console.log(cat_id)
+
+
+            object?.tasks.forEach(task => {
+
+                const task_id = task._id.toString()
+
+                // console.log(task)
+                if(tasksToSend[cat_id] === undefined){
+
+                    tasksToSend[cat_id] = {}
+
+                }
+
+
+                tasksToSend[cat_id][task_id] = task
+
+            })
+
+            categories[cat_id] = {_id: object._id, title: object.title};
+
+        })
+
+        console.log("tasks: ", tasksToSend)
+        // console.log("categories: ",categories)
+
+
+
+        res.status(201).json({ project: projectToSend, categories: categories, tasks: tasksToSend, message: 'Project gotten!'});
     }
     catch(err){
     

@@ -15,6 +15,12 @@ router.put(`/`, (req, res, next) => {
 router.delete('/', (req, res ,next) => {
 
     categoryController.deleteCategory(req, res, next);
+});
+
+router.put('/task', (req, res, next) => {
+
+    categoryController.pushTaskInto(req, res, next)
+
 })
 
 export default router;
