@@ -40,7 +40,7 @@ async function getProject(req, res, next){
 
             const cat_id = object._id.toString();
 
-            console.log(cat_id)
+            // console.log(cat_id)
 
 
             object?.tasks.forEach(task => {
@@ -63,7 +63,7 @@ async function getProject(req, res, next){
 
         })
 
-        console.log("tasks: ", tasksToSend)
+        // console.log("tasks: ", tasksToSend)
         // console.log("categories: ",categories)
 
 

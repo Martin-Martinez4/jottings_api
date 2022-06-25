@@ -41,8 +41,22 @@ async function createTask(req, res, next){
         tasks.push(task)
 
         project.save();
+
+        let tasksObj = {}
+        let categoryToSend = {}
+
+        const category = project.category.id(category_id).tasks;
+
+        category.forEach(task => {
+
+            tasksObj[task._id] = task
+
+        })
+
+        categoryToSend[category_id] = tasksObj
+
     
-        res.status(201).json({ message: 'task created!'});
+        res.status(201).json({ new_tasks_object: categoryToSend, message: 'task created!'});
     }
     catch(err){
 
@@ -66,6 +80,9 @@ async function deleteTask(req, res, next){
         const opts = { session, new: true };
 
 
+        // console.log(req.body)
+
+
         const project_id = req.body.project_id;
         const category_id = req.body.category_id;
         const task_id = req.body.task_id;
@@ -80,18 +97,27 @@ async function deleteTask(req, res, next){
 
             if( badge_relations.includes(realtion._id.toString()) ){
 
-                // return realtion 
-
                 project.taskBadgesRelation.pull(realtion)
             }
             
         });
 
-        // console.log(taskBadges);
-
         project.save();
 
-        res.status(201).json({ message: 'task deleted!'});
+        let tasksObj = {}
+        let categoryToSend = {}
+
+        const category = project.category.id(category_id).tasks;
+
+        category.forEach(task => {
+
+            tasksObj[task._id] = task
+
+        })
+
+        categoryToSend[category_id] = tasksObj
+
+        res.status(201).json({ new_tasks_object: categoryToSend, message: 'task deleted!'});
     }
     catch(err){
 

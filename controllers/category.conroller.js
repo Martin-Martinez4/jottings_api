@@ -110,6 +110,8 @@ async function pushTaskInto(req, res, next){
     const task_id = req.body.task_id;
     const target_category_id = req.body.target_category_id;
 
+    let tasksToSend = {}
+
     try{
 
         const project = await Project.findById(project_id);
@@ -117,8 +119,6 @@ async function pushTaskInto(req, res, next){
         const oldCategory = await project.category.id(category_id);
 
         let task = await oldCategory.tasks.id(task_id);
-
-        // console.log(task)
 
         const taskToInsert = new Task({
 
@@ -128,17 +128,39 @@ async function pushTaskInto(req, res, next){
 
         const targetCategory = await project.category.id(target_category_id);
 
-        // console.log(task);
-        // console.log(targetCategory.tasks)
-        // console.log(oldCategory.tasks)
-
         targetCategory.tasks.push(taskToInsert);
         oldCategory.tasks.pull(task_id)
 
         project.save();
-        
 
-        res.status(201).json({ message: 'Category created!'});
+        // console.log(targetCategory.tasks)
+
+        [targetCategory, oldCategory].forEach( object => {
+
+            const cat_id = object._id.toString();
+
+            // console.log(cat_id)
+
+
+            object?.tasks.forEach(task => {
+
+                const task_id = task._id.toString()
+
+                // console.log(task)
+                if(tasksToSend[cat_id] === undefined){
+
+                    tasksToSend[cat_id] = {}
+
+                }
+
+
+                tasksToSend[cat_id][task_id] = task
+
+            })
+
+        })
+
+        res.status(201).json({ tasks: tasksToSend,old_category_id: category_id, new_category_id: target_category_id,  message: 'Category created!', success: true});
     }
     catch(err){
 
