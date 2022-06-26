@@ -19,6 +19,12 @@ const CategorySchema = new mongoose.Schema({
         required: true,
 
     },
+    length: {
+
+        type: Number,
+        default: 0,
+        required: true
+    }
     // badges: {
 
     //     type: [{ type: Schema.Types.ObjectId, ref: 'Badge' }],

@@ -28,6 +28,12 @@ router.put('/task', (req, res, next) => {
 
 })
 
+router.post('/task/order', (req, res, next) => {
+
+    categoryController.changeTaskOrder(req, res, next);
+
+})
+
 export default router;
 
 

@@ -13,6 +13,11 @@ const TaskSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    index:{
+        type: Number,
+        default: 0,
+        required: true
+    }
   
     // badges:{
     //     type: [{type: Schema.Types.ObjectId, ref: 'Badge'}],

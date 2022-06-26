@@ -15,6 +15,9 @@ async function createTask(req, res, next){
         const project_id = req.body.project_id;
         const badges = req.body.badges;
 
+        const project = await Project.findById(project_id);
+
+
         const task = 
                     badges?
                     await new Task({
@@ -22,7 +25,8 @@ async function createTask(req, res, next){
                         title: title,
                         content: content,
                         category: category_id,
-                        badges: badges
+                        badges: badges,
+                        index: project.category.id(category_id).length
                 
                     })
                     : 
@@ -31,14 +35,16 @@ async function createTask(req, res, next){
                         title: title,
                         content: content,
                         category: category_id,
+                        index: project.category.id(category_id).length
                 
                     })
     
     
-        const project = await Project.findById(project_id);
-        const tasks = project.category.id(category_id).tasks;
+        const tasks = await project.category.id(category_id).tasks;
 
-        tasks.push(task)
+        await tasks.push(task)
+
+        project.category.id(category_id).length += 1;
 
         project.save();
 
@@ -91,6 +97,8 @@ async function deleteTask(req, res, next){
 
         const project = await Project.findById(project_id);
         const tasks = await project.category.id(category_id).tasks.pull({ _id: task_id });
+
+        project.category.id(category_id).length -= 1;
 
         
         const taskBadges = project.taskBadgesRelation.filter(realtion => {
@@ -151,7 +159,7 @@ async function updateTask(req, res, next){
         task.content = content;
         task.title = title;
 
-        await project.save();
+        // await project.save();
 
         const newTask = await project.category.id(category_id).tasks.id(task_id);
 
