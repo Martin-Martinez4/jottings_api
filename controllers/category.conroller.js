@@ -19,7 +19,7 @@ async function createCategory(req, res, next){
     
         })
         
-        // await category.save();
+        await category.save();
     
         const project = await Project.findById(project_id);
 
@@ -28,7 +28,10 @@ async function createCategory(req, res, next){
 
         await project.save();
 
-        res.status(201).json({ message: 'Category created!'});
+        const new_category_object = {[category._id]: {title: category.title, _id: category._id }}
+
+
+        res.status(201).json({ new_category_object: new_category_object, category_id: category._id.toString() ,message: 'Category created!'});
     }
     catch(err){
 
@@ -85,10 +88,21 @@ async function deleteCategory(req, res, next){
 
         await project.category.pull({_id: category_id}, opts)
 
-        project.save();
-        
+        await project.save();
 
-        res.status(201).json({ message: 'Category created!'});
+        let categoriesToSend = {}
+
+        project?.category.forEach( object => {
+
+            const cat_id = object._id.toString();
+
+
+            categoriesToSend[cat_id] = {_id: object._id, title: object.title};
+
+        })
+    
+
+        res.status(201).json({ category_id: category_id, new_category_object: categoriesToSend, message: 'Category deleted!'});
     }
     catch(err){
 
@@ -160,7 +174,7 @@ async function pushTaskInto(req, res, next){
 
         })
 
-        res.status(201).json({ tasks: tasksToSend,old_category_id: category_id, new_category_id: target_category_id,  message: 'Category created!', success: true});
+        res.status(201).json({ tasks: tasksToSend,old_category_id: category_id, new_category_id: target_category_id,  message: 'Category edited!', success: true});
     }
     catch(err){
 
@@ -179,17 +193,22 @@ async function editCategory(req, res, next){
     try{
 
     const project_id = req.body.project_id;
+    const category_id = req.body.category_id;
     const title = req.body.title;
 
-    const project = Project.findById(project_id);
-
+    console.log(category_id)
+    
+    const project = await Project.findById(project_id);
+    
     const category = project.category.id(category_id);
 
     category.title = title;
 
-    project.save();
+    await project.save();
 
-    res.status(201).json({ message: 'Category title changed!'});
+    const categoryToSend = {[category_id]: {title: title, _id: category_id}}
+
+    res.status(201).json({ new_category_object: categoryToSend ,category_id: category_id, message: 'Category title changed!'});
 
 }
 catch(err){

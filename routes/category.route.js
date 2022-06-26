@@ -12,6 +12,11 @@ router.put(`/`, (req, res, next) => {
     categoryController.createCategory(req, res, next);
 });
 
+router.post(`/`, (req, res, next) => {
+
+    categoryController.editCategory(req, res, next);
+});
+
 router.delete('/', (req, res ,next) => {
 
     categoryController.deleteCategory(req, res, next);

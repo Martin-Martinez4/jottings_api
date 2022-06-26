@@ -142,16 +142,22 @@ async function updateTask(req, res, next){
         const task_id = req.body.task_id;
 
         const content = req.body.content;
+        const title = req.body.title;
 
         const project = await Project.findById(project_id);
 
-        let tasks = await project.category.id(category_id).tasks.id(task_id);
+        let task = await project.category.id(category_id).tasks.id(task_id);
 
-        tasks.content = content;
+        task.content = content;
+        task.title = title;
 
         await project.save();
 
-        res.status(201).json({ message: 'task updated!'});
+        const newTask = await project.category.id(category_id).tasks.id(task_id);
+
+        const taskToSend = {[`${task_id}`]: newTask }
+
+        res.status(201).json({ category_id: category_id, new_task_object: taskToSend, message: 'task updated!'});
     }
     catch(err){
 
