@@ -24,6 +24,11 @@ const CategorySchema = new mongoose.Schema({
         type: Number,
         default: 0,
         required: true
+    },
+    index: {
+
+        type: Number,
+        required: true
     }
     // badges: {
 

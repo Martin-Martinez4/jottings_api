@@ -59,7 +59,7 @@ async function getProject(req, res, next){
 
             })
 
-            categories[cat_id] = {_id: object._id, title: object.title};
+            categories[cat_id] = {_id: object._id, title: object.title, index: object.index};
 
         })
 

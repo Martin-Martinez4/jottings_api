@@ -11,20 +11,24 @@ async function createCategory(req, res, next){
 
         const title = req.body.title;
         const project_id = req.body.project_id;
+
+        const project = await Project.findById(project_id);
     
         const category = await new Category({
     
             title: title,
-            project: project_id
+            project: project_id,
+            index: project.length
     
         })
         
         await category.save();
     
-        const project = await Project.findById(project_id);
 
     
         await project.category.push(category);
+
+        project.length += 1;
 
         await project.save();
 
@@ -88,6 +92,8 @@ async function deleteCategory(req, res, next){
 
         await project.category.pull({_id: category_id}, opts)
 
+        project.length -= 1;
+
         await project.save();
 
         let categoriesToSend = {}
@@ -124,6 +130,9 @@ async function pushTaskInto(req, res, next){
     const task_id = req.body.task_id;
     const target_category_id = req.body.target_category_id;
 
+    const original_index = req.body.original_index;
+    const target_index = req.body.target_index;
+
     let tasksToSend = {}
 
     try{
@@ -133,28 +142,72 @@ async function pushTaskInto(req, res, next){
         const oldCategory = await project.category.id(category_id);
 
         let task = await oldCategory.tasks.id(task_id);
-
-        const taskToInsert = new Task({
-
-            title: task.title,
-            content: task.content,
-        })
-
         const targetCategory = await project.category.id(target_category_id);
 
-        targetCategory.tasks.push(taskToInsert);
-        oldCategory.tasks.pull(task_id)
+        const taskToInsert = (original_index && target_index)
+            ? new Task({
+
+                title: task.title,
+                content: task.content,
+                index: target_index + 1
+            })
+            : new Task({
+
+                title: task.title,
+                content: task.content,
+                index: targetCategory.length
+            })
+            
+
+
+        await targetCategory.tasks.push(taskToInsert);
+        await oldCategory.tasks.pull(task_id)
+
+        if(!original_index || !target_index){
+
+        }
+        else{
+
+            oldCategory.tasks.forEach(task => {
+    
+                if(task.index > original_index){
+    
+                    task.index -= 1;
+    
+                }
+    
+            })
+    
+    
+            targetCategory.tasks.forEach(task => {
+    
+    
+                if(task.index >= target_index + 1 && task._id != taskToInsert._id){
+    
+                    task.index += 1;
+    
+                }
+    
+    
+            })
+        }
+
+
+        // console.log("old: ", oldCategory.tasks)
+        // console.log("new: ",targetCategory.tasks)
+
+        oldCategory.length -= 1;
+        targetCategory.length += 1;
 
         project.save();
 
         // console.log(targetCategory.tasks)
+        
 
         [targetCategory, oldCategory].forEach( object => {
 
+
             const cat_id = object._id.toString();
-
-            // console.log(cat_id)
-
 
             object?.tasks.forEach(task => {
 
@@ -195,8 +248,6 @@ async function editCategory(req, res, next){
         const project_id = req.body.project_id;
         const category_id = req.body.category_id;
         const title = req.body.title;
-
-        console.log(category_id)
         
         const project = await Project.findById(project_id);
         
@@ -229,8 +280,8 @@ async function changeTaskOrder(req, res, next){
 
         // inserts before target_index
 
-        const original_index = req.body.original_index;
-        const target_index = req.body.target_index;
+        const original_index = parseInt(req.body.original_index);
+        const target_index = parseInt(req.body.target_index);
 
         const project_id = req.body.project_id;
         const category_id = req.body.category_id;
@@ -249,12 +300,12 @@ async function changeTaskOrder(req, res, next){
 
             tasks.forEach(task => {
                 
-                if(task.index === original_index){
+                if(task.index == original_index){
 
                     task.index = target_index
 
                 }
-                else if((task.index >= original_index + 1) && (task.index <= target_index)){
+                else if((task.index > original_index) && (task.index <= target_index)){
 
                     task.index -= 1
 
@@ -267,13 +318,15 @@ async function changeTaskOrder(req, res, next){
             // Moves to the left
             // higher index move to lower position
             tasks.forEach(task => {
+
+                const taskIndex = parseInt(task.index)
                 
-                if(task.index === original_index){
+                if(taskIndex == original_index){
 
                     task.index = target_index
 
                 }
-                else if((task.index >= target_index) && (task.index < original_index)){
+                else if((taskIndex >= target_index) && (taskIndex < original_index)){
 
                     task.index += 1
 
@@ -304,9 +357,118 @@ async function changeTaskOrder(req, res, next){
 
         })
 
+        console.log(categoryToSend)
+
 
 
         res.status(201).json({ new_category_object: categoryToSend ,category_id: category_id, message: 'Category title changed!'});
+
+    }
+    catch(err){
+
+        err.statusCode = err.statusCode | 500;
+
+        err.message =  err.message | "Error changing category title";
+
+        next(err);
+    }
+      
+}
+
+async function changeCategoryOrder(req, res, next){
+
+    try{
+
+        // inserts before target_index
+
+        const original_index = req.body.original_index;
+        const target_index = req.body.target_index;
+
+        const project_id = req.body.project_id;
+        const category_id = req.body.category_id;
+
+        const project = await Project.findById(project_id)
+
+        console.log(target_index)
+        console.log(original_index)
+        
+        // console.log(project.category)
+
+        const categories =  project.category
+
+        if(original_index < target_index){
+
+            // Moves to the right
+            // lower index move to higher position
+
+            categories.forEach(category => {
+
+                const currentIndex = parseInt(category.index)
+                
+                if(currentIndex == original_index){
+
+                    category.index = target_index
+
+                }
+                else if((currentIndex > original_index) && (currentIndex <= target_index)){
+
+                    category.index -= 1
+
+                }
+    
+            })
+        }
+        else if(original_index > target_index){
+
+            // Moves to the left
+            // higher index move to lower position
+            categories.forEach(category => {
+
+                const currentIndex = parseInt(category.index)
+                
+                if(currentIndex == original_index){
+                    
+                    category.index = target_index
+                    
+                }
+                else if((currentIndex >= target_index) && (currentIndex < original_index)){
+                    
+                    category.index += 1
+                    
+                }
+                
+            })
+
+        }
+
+
+        
+        await project.save();
+
+        let categoryToSend = {}
+
+        categories.forEach(category => {
+
+            const category_id = category._id.toString()
+
+            // console.log(task)
+            if(categoryToSend[category_id] === undefined){
+
+                categoryToSend[category_id] = {}
+
+            }
+
+            // console.log(category)
+
+            categoryToSend[category_id] = {_id: category._id, title: category.title, index: category.index};
+
+        })
+
+        // console.log(categoryToSend)
+
+
+
+        res.status(201).json({ new_categories_object: categoryToSend ,category_id: category_id, message: 'Category title changed!'});
 
     }
     catch(err){
@@ -327,7 +489,8 @@ export default {
     deleteCategory,
     editCategory,
     pushTaskInto,
-    changeTaskOrder
+    changeTaskOrder,
+    changeCategoryOrder
 
 }
 

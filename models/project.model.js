@@ -34,6 +34,11 @@ const ProjectSchema = new mongoose.Schema({
     users: {
         type:[{type: Schema.Types.ObjectId, ref: 'User'}],
         required: true
+    },
+    length: {
+        type: Number,
+        required: true,
+        default: 0
     }
   
 })
