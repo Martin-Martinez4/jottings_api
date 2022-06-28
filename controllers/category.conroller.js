@@ -15,24 +15,24 @@ async function createCategory(req, res, next){
         const project = await Project.findById(project_id);
     
         const category = await new Category({
-    
+            
             title: title,
             project: project_id,
             index: project.length
-    
+            
         })
         
         await category.save();
-    
-
-    
+        
+        
+        
         await project.category.push(category);
-
+        
         project.length += 1;
 
         await project.save();
 
-        const new_category_object = {[category._id]: {title: category.title, _id: category._id }}
+        const new_category_object = {[category._id]: {title: category.title, _id: category._id, index: category.index }}
 
 
         res.status(201).json({ new_category_object: new_category_object, category_id: category._id.toString() ,message: 'Category created!'});
@@ -103,7 +103,7 @@ async function deleteCategory(req, res, next){
             const cat_id = object._id.toString();
 
 
-            categoriesToSend[cat_id] = {_id: object._id, title: object.title};
+            categoriesToSend[cat_id] = {_id: object._id, title: object.title, index: object.index};
 
         })
     
@@ -149,7 +149,7 @@ async function pushTaskInto(req, res, next){
 
                 title: task.title,
                 content: task.content,
-                index: target_index + 1
+                index: target_index
             })
             : new Task({
 
@@ -182,7 +182,7 @@ async function pushTaskInto(req, res, next){
             targetCategory.tasks.forEach(task => {
     
     
-                if(task.index >= target_index + 1 && task._id != taskToInsert._id){
+                if(task.index >= target_index && task._id != taskToInsert._id){
     
                     task.index += 1;
     
@@ -257,7 +257,7 @@ async function editCategory(req, res, next){
 
         await project.save();
 
-        const categoryToSend = {[category_id]: {title: title, _id: category_id}}
+        const categoryToSend = {[category_id]: {title: title, _id: category_id, index: category.index}}
 
         res.status(201).json({ new_category_object: categoryToSend ,category_id: category_id, message: 'Category title changed!'});
 
@@ -389,8 +389,8 @@ async function changeCategoryOrder(req, res, next){
 
         const project = await Project.findById(project_id)
 
-        console.log(target_index)
-        console.log(original_index)
+        // console.log(target_index)
+        // console.log(original_index)
         
         // console.log(project.category)
 
@@ -401,18 +401,27 @@ async function changeCategoryOrder(req, res, next){
             // Moves to the right
             // lower index move to higher position
 
+            let changesToMake = target_index - original_index + 1;
+
             categories.forEach(category => {
+
+                if(changesToMake === 0){
+
+                    return
+                }
 
                 const currentIndex = parseInt(category.index)
                 
                 if(currentIndex == original_index){
 
-                    category.index = target_index
+                    category.index = target_index;
+                    changesToMake -= 1;
 
                 }
                 else if((currentIndex > original_index) && (currentIndex <= target_index)){
 
-                    category.index -= 1
+                    category.index -= 1;
+                    changesToMake -= 1;
 
                 }
     
@@ -422,22 +431,71 @@ async function changeCategoryOrder(req, res, next){
 
             // Moves to the left
             // higher index move to lower position
-            categories.forEach(category => {
+
+            let changesToMake = original_index - target_index + 1;
+            
+            for(let i = 0; i < categories.length; i ++){
+
+                const category = categories[i];
+
+                console.log(changesToMake)
+
+                console.log("before: ", category.index)
+
+                if(changesToMake === 0){
+
+                    console.log("return early")
+
+                    break
+                }
 
                 const currentIndex = parseInt(category.index)
                 
                 if(currentIndex == original_index){
                     
-                    category.index = target_index
+                    category.index = target_index;
+
+                    changesToMake -= 1;
                     
                 }
                 else if((currentIndex >= target_index) && (currentIndex < original_index)){
                     
                     category.index += 1
+
+                    changesToMake -= 1;
                     
                 }
+
+
+            }
+
+            // categories.forEach(category => {
+
+            //     if(changesToMake === 0){
+
+            //         console.log("return early")
+
+            //         return
+            //     }
+
+            //     const currentIndex = parseInt(category.index)
                 
-            })
+            //     if(currentIndex == original_index){
+                    
+            //         category.index = target_index;
+
+            //         changesToMake -= 1;
+                    
+            //     }
+            //     else if((currentIndex >= target_index) && (currentIndex < original_index)){
+                    
+            //         category.index += 1
+
+            //         changesToMake -= 1;
+                    
+            //     }
+                
+            // })
 
         }
 
