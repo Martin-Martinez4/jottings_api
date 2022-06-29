@@ -159,7 +159,7 @@ async function updateTask(req, res, next){
         task.content = content;
         task.title = title;
 
-        // await project.save();
+        await project.save();
 
         const newTask = await project.category.id(category_id).tasks.id(task_id);
 
