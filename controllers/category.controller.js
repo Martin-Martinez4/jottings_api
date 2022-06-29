@@ -1,4 +1,5 @@
 
+import { reorderOneDimension } from "../utils/reorder.js";
 import Category from "../models/category.model.js";
 import Project from "../models/project.model.js";
 import Task from "../models/task.model.js";
@@ -193,15 +194,10 @@ async function pushTaskInto(req, res, next){
         }
 
 
-        // console.log("old: ", oldCategory.tasks)
-        // console.log("new: ",targetCategory.tasks)
-
         oldCategory.length -= 1;
         targetCategory.length += 1;
 
         project.save();
-
-        // console.log(targetCategory.tasks)
         
 
         [targetCategory, oldCategory].forEach( object => {
@@ -289,54 +285,10 @@ async function changeTaskOrder(req, res, next){
 
         const project = await Project.findById(project_id)
         
-        // console.log(project.category)
-
         const tasks =  project.category.id(category_id).tasks
 
-        if(original_index < target_index){
+        reorderOneDimension(original_index, target_index, tasks);
 
-            // Moves to the right
-            // lower index move to higher position
-
-            tasks.forEach(task => {
-                
-                if(task.index == original_index){
-
-                    task.index = target_index
-
-                }
-                else if((task.index > original_index) && (task.index <= target_index)){
-
-                    task.index -= 1
-
-                }
-    
-            })
-        }
-        else if(original_index > target_index){
-
-            // Moves to the left
-            // higher index move to lower position
-            tasks.forEach(task => {
-
-                const taskIndex = parseInt(task.index)
-                
-                if(taskIndex == original_index){
-
-                    task.index = target_index
-
-                }
-                else if((taskIndex >= target_index) && (taskIndex < original_index)){
-
-                    task.index += 1
-
-                }
-    
-            })
-
-        }
-
-        
         await project.save();
 
         let categoryToSend = {}
@@ -345,7 +297,6 @@ async function changeTaskOrder(req, res, next){
 
             const task_id = task._id.toString()
 
-            // console.log(task)
             if(categoryToSend[category_id] === undefined){
 
                 categoryToSend[category_id] = {}
@@ -356,8 +307,6 @@ async function changeTaskOrder(req, res, next){
             categoryToSend[category_id][task_id] = task
 
         })
-
-        console.log(categoryToSend)
 
 
 
@@ -389,117 +338,10 @@ async function changeCategoryOrder(req, res, next){
 
         const project = await Project.findById(project_id)
 
-        // console.log(target_index)
-        // console.log(original_index)
-        
-        // console.log(project.category)
 
         const categories =  project.category
 
-        if(original_index < target_index){
-
-            // Moves to the right
-            // lower index move to higher position
-
-            let changesToMake = target_index - original_index + 1;
-
-            categories.forEach(category => {
-
-                if(changesToMake === 0){
-
-                    return
-                }
-
-                const currentIndex = parseInt(category.index)
-                
-                if(currentIndex == original_index){
-
-                    category.index = target_index;
-                    changesToMake -= 1;
-
-                }
-                else if((currentIndex > original_index) && (currentIndex <= target_index)){
-
-                    category.index -= 1;
-                    changesToMake -= 1;
-
-                }
-    
-            })
-        }
-        else if(original_index > target_index){
-
-            // Moves to the left
-            // higher index move to lower position
-
-            let changesToMake = original_index - target_index + 1;
-            
-            for(let i = 0; i < categories.length; i ++){
-
-                const category = categories[i];
-
-                console.log(changesToMake)
-
-                console.log("before: ", category.index)
-
-                if(changesToMake === 0){
-
-                    console.log("return early")
-
-                    break
-                }
-
-                const currentIndex = parseInt(category.index)
-                
-                if(currentIndex == original_index){
-                    
-                    category.index = target_index;
-
-                    changesToMake -= 1;
-                    
-                }
-                else if((currentIndex >= target_index) && (currentIndex < original_index)){
-                    
-                    category.index += 1
-
-                    changesToMake -= 1;
-                    
-                }
-
-
-            }
-
-            // categories.forEach(category => {
-
-            //     if(changesToMake === 0){
-
-            //         console.log("return early")
-
-            //         return
-            //     }
-
-            //     const currentIndex = parseInt(category.index)
-                
-            //     if(currentIndex == original_index){
-                    
-            //         category.index = target_index;
-
-            //         changesToMake -= 1;
-                    
-            //     }
-            //     else if((currentIndex >= target_index) && (currentIndex < original_index)){
-                    
-            //         category.index += 1
-
-            //         changesToMake -= 1;
-                    
-            //     }
-                
-            // })
-
-        }
-
-
+        reorderOneDimension(original_index, target_index, categories);
         
         await project.save();
 
@@ -509,21 +351,16 @@ async function changeCategoryOrder(req, res, next){
 
             const category_id = category._id.toString()
 
-            // console.log(task)
             if(categoryToSend[category_id] === undefined){
 
                 categoryToSend[category_id] = {}
 
             }
 
-            // console.log(category)
 
             categoryToSend[category_id] = {_id: category._id, title: category.title, index: category.index};
 
         })
-
-        // console.log(categoryToSend)
-
 
 
         res.status(201).json({ new_categories_object: categoryToSend ,category_id: category_id, message: 'Category title changed!'});

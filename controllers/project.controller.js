@@ -40,14 +40,11 @@ async function getProject(req, res, next){
 
             const cat_id = object._id.toString();
 
-            // console.log(cat_id)
-
 
             object?.tasks.forEach(task => {
 
                 const task_id = task._id.toString()
 
-                // console.log(task)
                 if(tasksToSend[cat_id] === undefined){
 
                     tasksToSend[cat_id] = {}
@@ -62,9 +59,6 @@ async function getProject(req, res, next){
             categories[cat_id] = {_id: object._id, title: object.title, index: object.index};
 
         })
-
-        // console.log("tasks: ", tasksToSend)
-        // console.log("categories: ",categories)
 
 
 

@@ -3,7 +3,7 @@ import express from "express";
 
 // import { signup } from "../controllers/auth.controller.js";
 
-import categoryController from "../controllers/category.conroller.js";
+import categoryController from "../controllers/category.controller.js";
 
 const router = express.Router();
 
