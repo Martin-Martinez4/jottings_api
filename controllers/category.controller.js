@@ -145,6 +145,7 @@ async function pushTaskInto(req, res, next){
         let task = await oldCategory.tasks.id(task_id);
         const targetCategory = await project.category.id(target_category_id);
 
+
         const taskToInsert = (original_index != undefined && target_index != undefined)
             ? new Task({
 
@@ -158,14 +159,24 @@ async function pushTaskInto(req, res, next){
                 content: task.content,
                 index: targetCategory.length
             })
-            
+
 
 
         await targetCategory.tasks.push(taskToInsert);
         await oldCategory.tasks.pull(task_id)
-
+                
         if(original_index === undefined || target_index === undefined){
 
+            
+            oldCategory.tasks.forEach(task => {
+    
+                if(task.index > original_index){
+                    
+                    task.index -= 1;
+                    
+                }
+                
+            })
 
         }
         else{

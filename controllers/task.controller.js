@@ -96,7 +96,21 @@ async function deleteTask(req, res, next){
         const badge_relations = req.body.badge_relations;
 
         const project = await Project.findById(project_id);
+
+        const task = await project.category.id(category_id).tasks.id(task_id);
+
+        const task_index = task.index;
+
         const tasks = await project.category.id(category_id).tasks.pull({ _id: task_id });
+
+        tasks.forEach(task => {
+
+            if(task.index > task_index){
+
+                task.index -= 1;
+
+            }
+        })
 
         project.category.id(category_id).length -= 1;
 
