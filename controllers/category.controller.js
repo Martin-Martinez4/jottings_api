@@ -66,6 +66,8 @@ async function deleteCategory(req, res, next){
 
         const category = project.category.id(category_id);
 
+        const category_index = category.index;
+
         const tasks = category.tasks
 
         const taskIdsArray = tasks.map(task => {
@@ -91,7 +93,16 @@ async function deleteCategory(req, res, next){
         })
 
 
-        await project.category.pull({_id: category_id}, opts)
+        await project.category.pull({_id: category_id}, opts);
+
+        tasks.forEach(task => {
+
+            if(task.index > category_index){
+
+                task.index -= 1;
+
+            }
+        })
 
         project.length -= 1;
 

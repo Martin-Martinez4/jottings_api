@@ -24,6 +24,9 @@ import projectRoutes from "./routes/project.route.js";
 import categoryRoutes from "./routes/category.route.js";
 import badgeRoutes from "./routes/badge.route.js";
 
+import { createServer } from "http";
+import { Server } from "socket.io";
+
 const app = express();
 
 const allowedOrigins = [`${process.env.FRONTEND_BASE_URL}`];
@@ -50,6 +53,7 @@ app.use((error, req ,res, next) => {
 });
 
 app.use(authRoutes);
+app.use('/auth', authRoutes);
 app.use('/badge', badgeRoutes);
 app.use('/task', taskRoutes);
 app.use('/category', categoryRoutes);
@@ -61,12 +65,31 @@ mongoose
 .connect(`${process.env.MONGO_URL}`)
 .then(result => {
 
-    app.listen(process.env.PORT || 3001);
-    console.log(`Connected on port ${process.env.PORT || 3001}`)
+    const httpServer = createServer(app);
+    const io = new Server(httpServer, {
+        cors: {
+            origin: "http://localhost:3000",
+            methods: ["GET", "POST", "PUT"]
+        }
+    });
+
+    io.on('connection', socket => {
+        console.log("client connected")
+
+        
+    })
+
+    httpServer.listen(process.env.PORT || 3001);
+
+    // Start socket io server
+    // socket build on top of http server
+    // const io = import('./socket.js').init(server);
+
 })
     .catch(err => {
     console.log("Connection Error: ",err);
 });
+
 
 export const conn = mongoose.connection;
 
