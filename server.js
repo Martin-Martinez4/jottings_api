@@ -9,6 +9,7 @@ import path from "path";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
 
+import compression from "compression";
 import mongoose from "mongoose";
 
 import bodyParser from 'body-parser'; 
@@ -37,18 +38,31 @@ const options = {
 
 };
 
+app.use(compression({ filter: shouldCompress }))
+ 
+function shouldCompress (req, res) {
+  if (req.headers['x-no-compression']) {
+    // don't compress responses with this request header
+    return false
+  }
+ 
+  // fallback to standard filter function
+  return compression.filter(req, res)
+}
+
 app.use(bodyParser.urlencoded({extended:true, limit:'4mb'})); 
 app.use(express.json({limit:'4mb'}));
 app.use(cors(options));
 app.use(cookieParser());
 
 app.use((error, req ,res, next) => {
+
     const status = error.statusCode || 500;
     const message = error.message;
-  
-    console.log("gets here ", error);
-  
-    res.status(status).json({message: message})
+
+    const body = error?.body;
+    
+    res.status(status).json({message: message, ...body})
   
 });
 
