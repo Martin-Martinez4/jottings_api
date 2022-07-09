@@ -54,7 +54,7 @@ async function signin(req, res, next){
         const email = req.body.email;
         const password = req.body.password;
 
-        const user = await User.findOne({"email": `${email}`})
+        const user = await User.findOne({"email": `${email}`}).populate('projects', ["title", "description", "logo_url"]);
 
         const { _id, username, projects, permissions } = user
     
@@ -130,7 +130,8 @@ async function getUser(req, res, next){
 
         const user_id = req.user_id;
     
-        const user = await User.findById(user_id);
+        const user = await User.findById(user_id).populate('projects', ["title", "description", "logo_url"]);
+
     
         const { _id, email, username, projects, permissions } = user;
     

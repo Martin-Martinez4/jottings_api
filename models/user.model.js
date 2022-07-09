@@ -18,13 +18,13 @@ const UserSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    // badges: {
+    teams: {
 
-    //     type: [{ type: Schema.Types.ObjectId, ref: 'Badge' }],
-    //     default: [],
-    //     required: true
+        type: [{ type: Schema.Types.ObjectId, ref: 'Team' }],
+        default: [],
+        required: true
 
-    // },
+    },
     projects: {
         type: [{ type: Schema.Types.ObjectId, ref: 'Project' }],
         default: [],

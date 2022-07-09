@@ -20,6 +20,7 @@ import express from 'express';
 import cookieParser from "cookie-parser"; 
 
 import authRoutes from "./routes/auth.route.js";
+import teamRoutes from "./routes/team.route.js";
 import taskRoutes from "./routes/task.route.js";
 import projectRoutes from "./routes/project.route.js";
 import categoryRoutes from "./routes/category.route.js";
@@ -68,6 +69,7 @@ app.use((error, req ,res, next) => {
 
 app.use(authRoutes);
 app.use('/auth', authRoutes);
+app.use('/team', teamRoutes);
 app.use('/badge', badgeRoutes);
 app.use('/task', taskRoutes);
 app.use('/category', categoryRoutes);

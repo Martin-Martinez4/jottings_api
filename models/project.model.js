@@ -12,6 +12,18 @@ const ProjectSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    logo_url:{
+
+        type: String,
+        required: false,
+        default: ""
+    },
+    description: {
+        type: String,
+        required: false,
+        default: ""
+
+    },
     badges: {
 
         type: [BadgeSchema],

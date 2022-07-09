@@ -193,54 +193,6 @@ async function updateTask(req, res, next){
 
 }
 
-// Keeping as refernce for transactions
-
-// async function deleteTask (req, res, next){
-
-//     const session = await conn.startSession();
-//     session.startTransaction();
-//     try{
-
-//         const task_id = req.body.task_id;
-//         const category_id = req.body.category_id;
-
-//         // Add validation for task_id and categor_id
-//         const opts = { session, new: true };
-    
-//         const task = await Task.findByIdAndRemove({_id: task_id}, opts);
-
-//         const result = await Category.findOneAndUpdate( 
-//             { _id: category_id }, 
-//             { $pullAll: { tasks: [task_id] } },
-//             opts,  
-//         );
-
-//         await session.commitTransaction();
-//         session.endSession();
-
-//         res.status(201).json({ message: 'Task deleted!'});
-//     }
-//     catch(err){
-
-//         await session.abortTransaction();
-//         session.endSession();
-
-//         err.statusCode = err.statusCode | 500;
-
-//         err.message =  err.message | "Error Deleting Task";
-
-//         next(err);
-        
-//     }
-//     // finally{
-
-//     //     session.endSession()
-//     // }
-  
-
-
-// } 
-
 export default {
 
     createTask,
