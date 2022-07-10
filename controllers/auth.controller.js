@@ -2,6 +2,7 @@
 import bcrypt from 'bcryptjs';
 import { createAccessToken } from '../utils/createTokens.js';
 import { createStoreSendTokens } from '../utils/createTokens.js';
+import Token from '../models/refreshToken.model.js';
 
 import User from "../models/user.model.js";
 
@@ -145,6 +146,14 @@ async function signin(req, res, next){
 }
 
 async function signout(req, res, next){
+
+    const refresh_token = req.cookies.refresh_token ? req.cookies.refresh_token : undefined
+
+    if(refresh_token){
+
+        await Token.findOneAndDelete({"token": refresh_token})
+
+    }
 
     res.clearCookie('refresh_token');
             
