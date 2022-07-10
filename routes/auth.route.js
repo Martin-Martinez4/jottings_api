@@ -15,10 +15,20 @@ router.put(`/signin`, (req, res, next) => {
     authController.signin(req, res, next);
 });
 
+router.put(`/signout`, (req, res, next) => {
+
+    authController.signout(req, res, next);
+});
+
 router.get(`/`, [validateVerifyToken], (req, res, next) => {
 
     // id is from the http cookie refresh_token
     authController.getUser(req, res, next);
+});
+
+router.post(`/email`, (req, res, next) => {
+
+    authController.emailAvailable(req, res, next);
 });
 
 export default router;

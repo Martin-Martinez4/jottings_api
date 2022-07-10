@@ -8,9 +8,11 @@ import User from "../models/user.model.js";
 async function signup (req, res, next){
     
     try{
+
+        console.log(req.body)
             
         const email = req.body.email;
-        const name = req.body.name;
+        const username = req.body.username;
         const password = req.body.password;
     
         const hashedPw = await bcrypt.hash(password, 12)
@@ -18,12 +20,31 @@ async function signup (req, res, next){
         const user = await new User({
             email: email,
             password: hashedPw,
-            username: name
+            username: username
         })
         
-        user.save().then(result => {
+        user.save().then(async result => {
 
-            res.status(201).json({ message: 'User created!'});
+            const {email, username, projects, permissions} = result
+
+            const refreshAndAccessTokens =  await createStoreSendTokens(result._id.toString())
+
+                const refreshTokenExiprationInMiliSeconds = process.env.REFRESH_TOKEN_EXPIRATION_IN_SECONDS * 1000
+
+                res.cookie('refresh_token', refreshAndAccessTokens.refresh_token, { httpOnly: true, sameSite: 'None', maxAge: refreshTokenExiprationInMiliSeconds, secure: true });
+
+                res.status(201).json({ 
+                    message: 'User created!', 
+                    user: { 
+                            email: email, 
+                            username: username, 
+                            projects: projects, 
+                            permissions: permissions, 
+                            access_token: refreshAndAccessTokens.access_token, 
+                            isAuth: true 
+                        }
+                });
+
             
         }).catch(err => {
             err.statusCode = err.statusCode | 500;
@@ -31,7 +52,6 @@ async function signup (req, res, next){
             err.message = err.message | "Error Creating User";
     
             next(err);
-            res.status(400).json({ message: "Error Creating User"});
         });
 
     }
@@ -124,6 +144,24 @@ async function signin(req, res, next){
 
 }
 
+async function signout(req, res, next){
+
+    res.clearCookie('refresh_token');
+            
+    res.status(403).json({ 
+        message: 'Not authorized.', 
+        user: { 
+                email: "", 
+                username: "", 
+                projects: [], 
+                permissions: [], 
+                access_token: "", 
+                isAuth: false 
+            }
+    });
+
+}
+
 async function getUser(req, res, next){
 
     try{
@@ -169,8 +207,20 @@ async function getUser(req, res, next){
 
     }
 
+}
 
+async function emailAvailable(req, res, next){
 
+    const email = req.body.email;
+
+    console.log("email", email)
+
+    
+    User.exists({email: email}, (err, doc) => {
+
+        res.status(200).json({available: doc === null});
+
+    })
 
 }
 
@@ -179,5 +229,7 @@ export default {
 
     signup,
     signin,
-    getUser
+    signout,
+    getUser,
+    emailAvailable
 }

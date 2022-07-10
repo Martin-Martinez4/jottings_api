@@ -6,12 +6,12 @@ import { validateVerifyToken } from "./middleware/auth.middleware.js";
 const router = express.Router();
 
 // router.put(`/`, [validateVerifyToken], (req, res, next) => {
-router.put(`/`, (req, res, next) => {
+router.put(`/`, [validateVerifyToken], (req, res, next) => {
 
     teamController.createTeam(req, res, next)
 });
 
-router.put(`/project`, (req, res, next) => {
+router.put(`/project`, [validateVerifyToken], (req, res, next) => {
 
     teamController.addProjectToTeam(req, res, next)
 });
