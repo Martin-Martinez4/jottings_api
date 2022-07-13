@@ -33,10 +33,10 @@ async function createCategory(req, res, next){
 
         await project.save();
 
-        const new_category_object = {[category._id]: {title: category.title, _id: category._id, index: category.index }}
+        const new_category_object = {[category._id]: {title: category.title, _id: category._id, index: category.index, length: category.length }}
 
 
-        res.status(201).json({ new_category_object: new_category_object, category_id: category._id.toString() ,message: 'Category created!'});
+        res.status(201).json({ projectLength: project.length, new_category_object: new_category_object, category_id: category._id.toString() ,message: 'Category created!'});
     }
     catch(err){
 
@@ -70,6 +70,8 @@ async function deleteCategory(req, res, next){
 
         const tasks = category.tasks
 
+        const catgories = project.category
+
         const taskIdsArray = tasks.map(task => {
 
             return task._id.toString()
@@ -95,11 +97,11 @@ async function deleteCategory(req, res, next){
 
         await project.category.pull({_id: category_id}, opts);
 
-        tasks.forEach(task => {
+        catgories.forEach(category => {
 
-            if(task.index > category_index){
+            if(category.index > category_index){
 
-                task.index -= 1;
+                category.index -= 1;
 
             }
         })
@@ -115,12 +117,12 @@ async function deleteCategory(req, res, next){
             const cat_id = object._id.toString();
 
 
-            categoriesToSend[cat_id] = {_id: object._id, title: object.title, index: object.index};
+            categoriesToSend[cat_id] = {_id: object._id, title: object.title, index: object.index, length: object.length};
 
         })
     
 
-        res.status(201).json({ category_id: category_id, new_category_object: categoriesToSend, message: 'Category deleted!'});
+        res.status(201).json({ projectLength: project.length, category_id: category_id, new_category_object: categoriesToSend, message: 'Category deleted!'});
     }
     catch(err){
 
@@ -244,7 +246,15 @@ async function pushTaskInto(req, res, next){
 
         })
 
-        res.status(201).json({ tasks: tasksToSend,old_category_id: category_id, new_category_id: target_category_id,  message: 'Category edited!', success: true});
+        res.status(201).json({ 
+            tasks: tasksToSend, 
+            old_category_id: category_id, 
+            old_category_length: oldCategory.length, 
+            new_category_id: target_category_id, 
+            new_category_length: targetCategory.length,
+            message: 'Category edited!', 
+            success: true
+        });
     }
     catch(err){
 
@@ -274,7 +284,7 @@ async function editCategory(req, res, next){
 
         await project.save();
 
-        const categoryToSend = {[category_id]: {title: title, _id: category_id, index: category.index}}
+        const categoryToSend = {[category_id]: {title: title, _id: category_id, index: category.index, length: category.length}}
 
         res.status(201).json({ new_category_object: categoryToSend ,category_id: category_id, message: 'Category title changed!'});
 
@@ -379,7 +389,7 @@ async function changeCategoryOrder(req, res, next){
             }
 
 
-            categoryToSend[category_id] = {_id: category._id, title: category.title, index: category.index};
+            categoryToSend[category_id] = {_id: category._id, title: category.title, index: category.index, length: category.length};
 
         })
 

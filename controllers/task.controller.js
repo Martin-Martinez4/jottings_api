@@ -61,8 +61,12 @@ async function createTask(req, res, next){
 
         categoryToSend[category_id] = tasksObj
 
+        // Create new lengths to send 
+            // send oldCategoryId: Length newCategoryId: Length
+            // {...state, state.categories: ...state,categories, [oldCategoryId]: {...state.categories[oldCategoryId], length: oldCategoryId: Length}}
+        const length = project.category.id(category_id).length
     
-        res.status(201).json({ new_tasks_object: categoryToSend, message: 'task created!'});
+        res.status(201).json({ category_id: category_id, length: length, new_tasks_object: categoryToSend, message: 'task created!'});
     }
     catch(err){
 
@@ -139,7 +143,11 @@ async function deleteTask(req, res, next){
 
         categoryToSend[category_id] = tasksObj
 
-        res.status(201).json({ new_tasks_object: categoryToSend, message: 'task deleted!'});
+        const length = project.category.id(category_id).length
+
+        console.log(length)
+
+        res.status(201).json({ category_id: category_id, length: length, new_tasks_object: categoryToSend, message: 'task deleted!'});
     }
     catch(err){
 

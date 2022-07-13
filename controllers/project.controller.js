@@ -9,7 +9,7 @@ async function getProject(req, res, next){
 
         const project = await Project.findById(project_id);
 
-        let projectToSend = {project_id: project._id, title: project.title}
+        let projectToSend = {project_id: project._id, title: project.title, length: project.length}
 
         let taskBadgeObj = {};
 
@@ -56,7 +56,7 @@ async function getProject(req, res, next){
 
             })
 
-            categories[cat_id] = {_id: object._id, title: object.title, index: object.index};
+            categories[cat_id] = {_id: object._id, title: object.title, index: object.index, length: object.length};
 
         })
 

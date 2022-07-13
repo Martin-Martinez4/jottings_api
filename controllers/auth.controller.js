@@ -9,8 +9,6 @@ import User from "../models/user.model.js";
 async function signup (req, res, next){
     
     try{
-
-        console.log(req.body)
             
         const email = req.body.email;
         const username = req.body.username;
@@ -222,9 +220,6 @@ async function emailAvailable(req, res, next){
 
     const email = req.body.email;
 
-    console.log("email", email)
-
-    
     User.exists({email: email}, (err, doc) => {
 
         res.status(200).json({available: doc === null});

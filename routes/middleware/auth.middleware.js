@@ -10,8 +10,6 @@ export const validateVerifyToken = async (req, res, next) => {
 
         const refresh_token  = req.cookies.refresh_token;
 
-        console.log('refresh_token: ', refresh_token)
-
         // Validate
         // Check if token in mongoDb            
 
