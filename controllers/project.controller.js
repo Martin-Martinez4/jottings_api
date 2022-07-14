@@ -1,5 +1,7 @@
 
 import Project from "../models/project.model.js";
+import User from "../models/user.model.js";
+
 
 async function getProject(req, res, next){
 
@@ -82,20 +84,31 @@ async function createProject(req, res, next){
     try{
 
         const title = req.body.title;
-    
-        // id of creator to be input as [_id]
-        const user_id = req.body.user_id;
+        const user_id = req.user_id;
+        const logo_url = req.body.url_logo;
+        const description = req.body.description;
+
     
         const project = await new Project({
     
             title: title,
+            logo_url: logo_url? logo_url : "",
+            description: description,
             users: [user_id]
     
         });
     
         await project.save();
+
+        const userById = await User.findById(user_id)
+        await userById.projects.push(project._id.toString())
+        await userById.save();
+        const user = await User.findById(user_id).populate('projects', ["title", "description", "logo_url"]);
+
+        const { projects } = user
     
-        res.status(201).json({ message: 'Project created!'});
+        res.status(201).json({ message: 'Project created!', projects: projects});
+        // res.status(201).json({ message: 'Project created!'});
 
     }
     catch(err){
@@ -114,16 +127,26 @@ async function editProject(req, res, next){
 
     try{
 
+        const user_id = req.user_id;
         const project_id = req.body.project_id;
+
         const title = req.body.title;
+        const description = req.body.description;
+        const logo_url = req.body.logo_url;
 
         const project = await Project.findById(project_id);
 
         project.title = title;
+        project.description = description;
+        project.logo_url = logo_url;
 
         await project.save();
+
+        const user = await User.findById(user_id).populate('projects', ["title", "description", "logo_url"]);
+
+        const { projects } = user
     
-        res.status(201).json({ message: 'Project title changed!'});
+        res.status(201).json({ message: 'Project title changed!', projects: projects});
 
     }
     catch(err){
@@ -140,15 +163,20 @@ async function editProject(req, res, next){
 
 async function deleteProject(req, res, next){
 
+    const user_id = req.user_id;
     const project_id = req.body.project_id;
+
 
     try{
 
+
         await Project.findByIdAndRemove(project_id);
 
-        Project.save();
+        const user = await User.findById(user_id).populate('projects', ["title", "description", "logo_url"]);
 
-        res.status(201).json({ message: 'Project deleted changed!'});
+        const { projects } = user
+    
+        res.status(201).json({ message: 'Project delted!', projects: projects});
 
     }
     catch(err){

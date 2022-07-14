@@ -90,9 +90,6 @@ async function deleteTask(req, res, next){
         const opts = { session, new: true };
 
 
-        // console.log(req.body)
-
-
         const project_id = req.body.project_id;
         const category_id = req.body.category_id;
         const task_id = req.body.task_id;
@@ -144,8 +141,6 @@ async function deleteTask(req, res, next){
         categoryToSend[category_id] = tasksObj
 
         const length = project.category.id(category_id).length
-
-        console.log(length)
 
         res.status(201).json({ category_id: category_id, length: length, new_tasks_object: categoryToSend, message: 'task deleted!'});
     }

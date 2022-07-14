@@ -24,8 +24,6 @@ export async function createTeam(req, res, body){
 
     user.teams.push(team._id);
 
-    // console.log(user)
-
     team.save();
     user.save();
 

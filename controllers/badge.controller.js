@@ -191,7 +191,6 @@ async function createBadgeTaskRelation(req, res, next){
 
         const project = await Project.findById(project_id)
 
-        // console.log(project)
         const taskBadges = project.taskBadgesRelation.filter(realtion => {
 
             if(realtion.Task == task_id  && realtion.Badges == badge_id){

@@ -20,6 +20,11 @@ router.post('/', [validateVerifyToken], (req, res, next) => {
     projectController.editProject(req, res, next);
 })
 
+router.delete('/', [validateVerifyToken], (req, res, next) => {
+
+    projectController.deleteProject(req, res, next);
+})
+
 export default router;
 
 
