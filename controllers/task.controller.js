@@ -172,7 +172,7 @@ async function updateTask(req, res, next){
         const project = await Project.findById(project_id);
 
         let task = await project.category.id(category_id).tasks.id(task_id);
-
+        
         task.content = content;
         task.title = title;
 
