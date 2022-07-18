@@ -56,17 +56,6 @@ app.use(express.json({limit:'4mb'}));
 app.use(cors(options));
 app.use(cookieParser());
 
-app.use((error, req ,res, next) => {
-
-    const status = error.statusCode || 500;
-    const message = error.message;
-
-    const body = error?.body;
-    
-    res.status(status).json({message: message, ...body})
-  
-});
-
 app.use(authRoutes);
 app.use('/auth', authRoutes);
 app.use('/team', teamRoutes);
@@ -74,6 +63,24 @@ app.use('/badge', badgeRoutes);
 app.use('/task', taskRoutes);
 app.use('/category', categoryRoutes);
 app.use('/project', projectRoutes);
+
+app.use((error, req ,res, next) => {
+
+  const statusCode = error.statusCode || 500;
+
+  const message = error.message;
+
+  const body = error?.body;
+
+
+  const toObjectSend = {message: message, ...body};
+
+
+  res.status(statusCode).json(toObjectSend)
+
+
+});
+
   
 
 mongoose

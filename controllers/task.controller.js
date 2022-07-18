@@ -72,8 +72,6 @@ async function createTask(req, res, next){
 
         err.statusCode = err.statusCode | 500;
 
-        err.message =  err.message | "Error Creating Task";
-
         next(err);
         
     }
@@ -148,8 +146,6 @@ async function deleteTask(req, res, next){
 
         err.statusCode = err.statusCode | 500;
 
-        err.message =  err.message | "Error deleting Task";
-
         next(err);
         
     }
@@ -186,9 +182,9 @@ async function updateTask(req, res, next){
     }
     catch(err){
 
-        err.statusCode = err.statusCode | 500;
+        // console.log(err.message)
 
-        err.message =  err.message | "Error updating Task";
+        err.statusCode = err.statusCode | 500;
 
         next(err);
         

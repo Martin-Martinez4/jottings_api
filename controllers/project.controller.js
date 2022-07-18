@@ -70,8 +70,6 @@ async function getProject(req, res, next){
     
         err.statusCode = err.statusCode | 500;
 
-        err.message =  err.message | "Error getting Project";
-
         next(err);
 
     }
@@ -115,8 +113,6 @@ async function createProject(req, res, next){
     
         err.statusCode = err.statusCode | 500;
 
-        err.message =  err.message | "Error Creating Project";
-
         next(err);
 
     }
@@ -153,8 +149,6 @@ async function editProject(req, res, next){
     
         err.statusCode = err.statusCode | 500;
 
-        err.message =  err.message | "Error changing project title";
-
         next(err);
 
     }
@@ -182,8 +176,6 @@ async function deleteProject(req, res, next){
     catch(err){
 
         err.statusCode = err.statusCode | 500;
-
-        err.message =  err.message | "Error deleting project title";
 
         next(err);
 

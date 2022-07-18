@@ -23,14 +23,12 @@ async function createCategory(req, res, next){
             
         })
         
-        await category.save();
-        
-        
         
         await project.category.push(category);
         
         project.length += 1;
-
+        
+        await category.save();
         await project.save();
 
         const new_category_object = {[category._id]: {title: category.title, _id: category._id, index: category.index, length: category.length }}
@@ -128,7 +126,7 @@ async function deleteCategory(req, res, next){
 
         err.statusCode = err.statusCode | 500;
 
-        err.message =  err.message | "Error Creating Category";
+        err.message =  err.message | "Error Delting Category";
 
         next(err);
         
