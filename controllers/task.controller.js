@@ -85,9 +85,6 @@ async function deleteTask(req, res, next){
 
     try{
 
-        const opts = { session, new: true };
-
-
         const project_id = req.body.project_id;
         const category_id = req.body.category_id;
         const task_id = req.body.task_id;
